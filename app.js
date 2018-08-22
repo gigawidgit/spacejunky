@@ -10,20 +10,20 @@ let ships = [
       'power',
       'support']],
   [
-    [false,'cockpit'],
+    [false, 'cockpit'],
     [
       'cannon',
       'power',
       'booster'],
-    [false,'support']],
+    [false, 'support']],
   [
-    [false,'booster'],
+    [false, 'booster'],
     [
       'cannon',
       'power',
       'cockpit',
       'support'],
-    [false,'booster']],
+    [false, 'booster']],
   [
     [
       'cannon',
@@ -189,80 +189,71 @@ const color = c => (parts.includes(c))
 const fill = (s, x, y, xl, yl, ship, list) => {
   let nx = mx - (xl * 15) / 2
   let ny = my - (yl * 15) / 2
-  if (!color(s)) return
+  if (!color(s)) {
+    return
+  }
   ctx.fillRect(nx + 15 + (x * 15), ny + 15 + (y * 15), 10, 10)
 
   //Connectors
-  if(typeof(ship[x][y+1]) ==='string'){
-    ctx.fillStyle = 'teal'
+  if (typeof(ship[x][y + 1]) === 'string') {
+    ctx.fillStyle = 'PaleTurquoise '
     ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 5)
   }
-
-  if(ship[x+1] && typeof(ship[x+1][y]) ==='string'){
-    ctx.fillStyle = 'teal'
+  if (ship[x + 1] && typeof(ship[x + 1][y]) === 'string') {
+    ctx.fillStyle = 'PaleTurquoise '
     ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 5, 10)
   }
 
   //Top Bottom
-  if(!ship[x][y+1]&& s ==='booster') {
+  if (!ship[x][y + 1] && s === 'booster') {
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
   }
-  if(!ship[x][y-1]&& s ==='booster') {
+  if (!ship[x][y - 1] && s === 'booster') {
     ctx.fillStyle = 'PaleGoldenRod'
-    ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) -25, 10, 15)
+    ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
   }
-
-  // t(x+" "+y+" "+xl+" "+yl+"|")
-
-
-      if(y === 0){
-          if(!ship[x][y-1] && s ==='cannon') {
-            ctx.fillStyle = 'pink'
-            ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) -25, 10, 15)
-            return
-          }
-      } else {
-        if(list && y===list-1 && x && x!==xl-1) {
-          if (!ship[x][y + 1] && s === 'cannon') {
-            ctx.fillStyle = 'pink'
-            ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
-            return
-          }
-        }
+  if (y === 0) {
+    if (!ship[x][y - 1] && s === 'cannon') {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
+      return
+    }
+  }
+  else {
+    if (list && y === list - 1 && x && x !== xl - 1) {
+      if (!ship[x][y + 1] && s === 'cannon') {
+        ctx.fillStyle = 'pink'
+        ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
+        return
       }
-      if(x ===0) {
-        if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'cannon') {
-          ctx.fillStyle = 'pink'
-          ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
-          return
-        }
-      }
-      if(x===xl-1) {
-        if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'cannon') {
-          ctx.fillStyle = 'pink'
-          ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
-          return
-        }
-      }
-
-
-
-
-
+    }
+  }
+  if (x === 0) {
+    if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'cannon') {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+      return
+    }
+  }
+  if (x === xl - 1) {
+    if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'cannon') {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
+      return
+    }
+  }
 
   //Left Right
 
-  if((!ship[x+1] || !ship[x+1][y]) && s ==='booster') {
+  if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'booster') {
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
   }
-  if((!ship[x-1]|| !ship[x-1][y] ) && s ==='booster') {
+  if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'booster') {
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
   }
-
-
 
 }
 const loop = (ship) => {
@@ -283,6 +274,12 @@ document.querySelector('.next').addEventListener('click', () => {
 })
 document.querySelector('.prev').addEventListener('click', () => {
   loadShip(((index >= 1) ? index - 1 : ships.length - 1))
+})
+document.querySelector('.build').addEventListener('click', () => {
+  clear()
+
+  loop(JSON.parse(JSON.stringify(document.querySelector('input').value.split("|").map(a=>a.split(',').map(b=>((b ==="false") ? false : b))))))
+
 })
 
 loadShip()
