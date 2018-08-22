@@ -1,0 +1,11 @@
+canvas {
+    height:500px;
+    display:flex;
+    width:500px;
+    background:#efefef;
+}
+button {
+    display:flex;
+    height:20px;
+    width:50px;
+}
