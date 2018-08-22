@@ -213,46 +213,45 @@ const fill = (s, x, y, xl, yl, ship, list) => {
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
   }
-  if (y === 0) {
-    if (!ship[x][y - 1] && s === 'cannon') {
-      ctx.fillStyle = 'pink'
-      ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
-      return
-    }
-  }
-  else {
-    if (list && y === list - 1 && x && x !== xl - 1) {
-      if (!ship[x][y + 1] && s === 'cannon') {
-        ctx.fillStyle = 'pink'
-        ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
-        return
-      }
-    }
-  }
-  if (x === 0) {
-    if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'cannon') {
-      ctx.fillStyle = 'pink'
-      ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
-      return
-    }
-  }
-  if (x === xl - 1) {
-    if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'cannon') {
-      ctx.fillStyle = 'pink'
-      ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
-      return
-    }
-  }
-
   //Left Right
-
   if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'booster') {
+
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
   }
   if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'booster') {
     ctx.fillStyle = 'PaleGoldenRod'
     ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+  }
+
+  if (s === 'cannon') {
+    //top
+    if (!ship[x][y - 1] && ship[x][y + 1]) {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
+      return
+    }
+
+    //bottom
+    if (!ship[x][y + 1] && ship[x][y - 1]) {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
+      return
+    }
+
+    //Left Cannon
+    if ((!ship[x - 1] && ship[x + 1][y]) || ship[x + 1]) {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+      return
+    }
+
+    //right cannon
+    if ((!ship[x + 1] && ship[x - 1][y]) || ship[x - 1]) {
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
+    }
+
   }
 
 }
@@ -278,7 +277,10 @@ document.querySelector('.prev').addEventListener('click', () => {
 document.querySelector('.build').addEventListener('click', () => {
   clear()
 
-  loop(JSON.parse(JSON.stringify(document.querySelector('input').value.split("|").map(a=>a.split(',').map(b=>((!b.length) ? false : b.trim()))))))
+  loop(JSON.parse(JSON.stringify(document.querySelector('input').
+    value.
+    split('|').
+    map(a => a.split(',').map(b => ((!b.length) ? false : b.trim()))))))
 
 })
 
