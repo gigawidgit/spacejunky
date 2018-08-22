@@ -1,11 +1,32 @@
-canvas {
-    height:500px;
+body {
+    margin:0;
+    padding:0;
     display:flex;
-    width:500px;
+    flex-direction: column;
+
+}
+div{
+    width:100vw;
+    height:10vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background:rgba(255,255,255,0.2);
+
+}
+canvas {
+    height:86vh;
+    display:flex;
+    width:100vw;
     background:#efefef;
+
 }
 button {
     display:flex;
-    height:20px;
-    width:50px;
+    text-align: center;
+    height:2vh;
+
+
+
 }

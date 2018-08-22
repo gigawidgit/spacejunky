@@ -1,11 +1,6 @@
-const t = (a, b, c) => {
-  if (c) {
-    document.querySelector(b || 'div').innerText = a
-  }
-  else {
-    document.querySelector(b || 'div').innerText += a
-  }
-}
+const t = (a, b, c) => (c)
+  ? document.querySelector(b || 'div').innerText = a
+  : document.querySelector(b || 'div').innerText += a
 let canvas = document.querySelector('canvas')
 let ctx = canvas.getContext('2d')
 let ships = [
@@ -15,27 +10,27 @@ let ships = [
       'power',
       'support']],
   [
-    'cockpit',
+    [false,'cockpit'],
     [
       'cannon',
       'power',
       'booster'],
-    'support'],
+    [false,'support']],
   [
-    'booster',
+    [false,'booster'],
     [
       'cannon',
       'power',
       'cockpit',
       'support'],
-    'booster'],
+    [false,'booster']],
   [
     [
       'cannon',
       'power',
       'support',
       'support'],
-    'cannon'],
+    [false, 'cannon']],
   [
     [
       false,
@@ -51,17 +46,17 @@ let ships = [
       'cannon',
       'support']],
   [
-    'support',
+    [false, 'support'],
     [
       'cannon',
       'power',
       'booster'],
-    'cockpit',
+    [false, 'cockpit'],
     [
       'cannon',
       'power',
       'booster'],
-    'support'],
+    [false, 'support']],
   [
     [
       false,
@@ -140,7 +135,7 @@ let ships = [
       false,
       'storage',
       'storage',
-      'stprage',
+      'storage',
       false,
       'booster'],
     [
@@ -161,7 +156,7 @@ let ships = [
 
 ]
 let index = 0
-let components = [
+let parts = [
   'cockpit',
   'power',
   'support',
@@ -169,42 +164,118 @@ let components = [
   'cannon',
   'shield',
   'storage']
-let colours = ['yellow', 'green', 'purple', 'orange', 'red', 'blue', 'cyan']
+let clrs = ['yellow', 'green', 'purple', 'orange', 'red', 'blue', 'cyan']
+canvas.height = document.querySelector('span').clientHeight
+canvas.width = document.querySelector('span').clientWidth
 let mx = canvas.width / 2
 let my = canvas.height / 2
-canvas.height = 500
-canvas.width = 500
 
 function clear () {
-  document.querySelector('div').innerText = ''
+  t('')
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 const loadShip = (x) => {
   index = x || 0
   clear()
-  t(ships[index].map(
-    a => ((typeof(a) === 'object' && a.length) ? a.length : 1)).
-    sort().
-    reverse()[0] + ':' + ships[index].length)
-  loopship(ships[index])
+  loop(ships[index])
+
 }
 
-function loopship (ship, x, y) {
-  for (var x = 0; x < ship.length; x++) {
-    if (typeof(ship[x]) === 'object') {
-      for (var y = 0; y < ship[x].length; y++) {
-        if (ship[x][y]) {
-          ctx.fillStyle = colours[components.indexOf(ship[x][y])]
-          ctx.fillRect(15 + (x * 15), 15 + (y * 15), 10, 10)
+const color = c => (parts.includes(c))
+  ? ctx.fillStyle = clrs[parts.indexOf(c)]
+  : false
+
+const fill = (s, x, y, xl, yl, ship, list) => {
+  let nx = mx - (xl * 15) / 2
+  let ny = my - (yl * 15) / 2
+  if (!color(s)) return
+  ctx.fillRect(nx + 15 + (x * 15), ny + 15 + (y * 15), 10, 10)
+
+  //Connectors
+  if(typeof(ship[x][y+1]) ==='string'){
+    ctx.fillStyle = 'teal'
+    ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 5)
+  }
+
+  if(ship[x+1] && typeof(ship[x+1][y]) ==='string'){
+    ctx.fillStyle = 'teal'
+    ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 5, 10)
+  }
+
+  //Top Bottom
+  if(!ship[x][y+1]&& s ==='booster') {
+    ctx.fillStyle = 'PaleGoldenRod'
+    ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
+  }
+  if(!ship[x][y-1]&& s ==='booster') {
+    ctx.fillStyle = 'PaleGoldenRod'
+    ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) -25, 10, 15)
+  }
+
+  // t(x+" "+y+" "+xl+" "+yl+"|")
+
+
+      if(y === 0){
+          if(!ship[x][y-1] && s ==='cannon') {
+            ctx.fillStyle = 'pink'
+            ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) -25, 10, 15)
+            return
+          }
+      } else {
+        if(list && y===list-1 && x && x!==xl-1) {
+          if (!ship[x][y + 1] && s === 'cannon') {
+            ctx.fillStyle = 'pink'
+            ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
+            return
+          }
         }
       }
+      if(x ===0) {
+        if ((!ship[x - 1] || !ship[x - 1][y]) && s === 'cannon') {
+          ctx.fillStyle = 'pink'
+          ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+          return
+        }
+      }
+      if(x===xl-1) {
+        if ((!ship[x + 1] || !ship[x + 1][y]) && s === 'cannon') {
+          ctx.fillStyle = 'pink'
+          ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
+          return
+        }
+      }
+
+
+
+
+
+
+  //Left Right
+
+  if((!ship[x+1] || !ship[x+1][y]) && s ==='booster') {
+    ctx.fillStyle = 'PaleGoldenRod'
+    ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
+  }
+  if((!ship[x-1]|| !ship[x-1][y] ) && s ==='booster') {
+    ctx.fillStyle = 'PaleGoldenRod'
+    ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+  }
+
+
+
+}
+const loop = (ship) => {
+  ship.forEach((a, x) => {
+    if (typeof(a) === 'object') {
+      a.forEach((b, y) => {
+        fill(b, x, y, ship.length, 1, ship, a.length)
+      })
     }
     else {
-      ctx.fillStyle = colours[components.indexOf(ship[x])]
-      ctx.fillRect(15 + (x * 15), 15 + (1 * 15), 10, 10)
+      fill(a, x, 1, ship.length, ship.length, ship, [1])
     }
-  }
+  })
 }
 
 document.querySelector('.next').addEventListener('click', () => {
