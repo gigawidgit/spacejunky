@@ -278,7 +278,7 @@ document.querySelector('.prev').addEventListener('click', () => {
 document.querySelector('.build').addEventListener('click', () => {
   clear()
 
-  loop(JSON.parse(JSON.stringify(document.querySelector('input').value.split("|").map(a=>a.split(',').map(b=>((b ==="false") ? false : b))))))
+  loop(JSON.parse(JSON.stringify(document.querySelector('input').value.split("|").map(a=>a.split(',').map(b=>((!b.length) ? false : b.trim()))))))
 
 })
 

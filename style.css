@@ -8,17 +8,18 @@ body {
 div{
     width:100vw;
     height:10vh;
-    display:flex;
+
     justify-content: center;
     align-items: center;
     text-align: center;
     background:rgba(255,255,255,0.2);
+    display:none;
 
 }
 canvas {
-    height:86vh;
+    height:78vh;
     display:flex;
-    width:100vw;
+    width:100%;
     background:#efefef;
 
 }
@@ -26,7 +27,11 @@ button {
     display:flex;
     text-align: center;
     height:2vh;
-
-
-
 }
+input {
+    display:flex;
+    height:4vh;
+
+    padding: 1vh 1vw;
+}
+
