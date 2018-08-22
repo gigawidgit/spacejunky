@@ -186,7 +186,7 @@ const color = c => (parts.includes(c))
   ? ctx.fillStyle = clrs[parts.indexOf(c)]
   : false
 
-const fill = (s, x, y, xl, yl, ship) => {
+const fill = (s, x, y, xl, yl, ship,list) => {
   let nx = mx - (xl * 15) / 2
   let ny = my - (yl * 15) / 2
   if (!color(s)) {
@@ -230,36 +230,50 @@ const fill = (s, x, y, xl, yl, ship) => {
     let v = []
     for (let a = 0; a < ship.length; a++) { h.push(ship[a][y]) }
     for (let b = 0; b < ship[x].length; b++) { v.push(ship[x][b]) }
-    let t = v.slice(0, v.indexOf('cannon')).
+
+    let t = v.slice(0, v.indexOf('cannon')-1).
       filter(j => j !== false || j !== undefined)
-    let b = v.slice(v.lastIndexOf('cannon') + 1, v.length - 1).
+
+    let b = v.slice(v.lastIndexOf('cannon'), v.length-1).
       filter(j => j !== false || j !== undefined)
-    let l = h.slice(0, h.indexOf('cannon')).
+
+    let l = h.slice(0, h.indexOf('cannon')-1).
       filter(j => j !== false || j !== undefined)
-    let r = h.slice(v.lastIndexOf('cannon') - 1, h.length + 1).
+
+    let r = h.slice(v.lastIndexOf('cannon'), h.length-1).
       filter(j => j !== false || j !== undefined)
+
 
     if (ship[x][y + 1] && ship[x + 1] && ship[x + 1][y] && ship[x - 1] && ship[x - 1][y] && ship[x][y - 1]) {
       return
     }
 
-    if (!t.length && !ship[x][y - 1] && ship[x][y + 1]) {
+    if ((!y && !t.length) || !y || (!ship[x][y-1] && !t.length)){
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
       return
     }
-    if ((!b.length && !ship[x][y + 1] && ship[x][y - 1])) {
+
+    if ((!y && !b.length) || (!ship[x][y+1] && ship[x][y-1])) {
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
       return
     }
-    if ((!r.length && !ship[x + 1][y]) || (x === xl - 1 && ship[x][y])) {
+
+    if ((x === xl-1 && !r.length) || (x === xl-1 && !r.length) || x===xl-1) {
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
       return
     }
-    ctx.fillStyle = 'pink'
-    ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+
+      ctx.fillStyle = 'pink'
+      ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
+
+
+
+
+
+
   }
 }
 const loop = (ship) => {
