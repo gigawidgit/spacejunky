@@ -186,7 +186,7 @@ const color = c => (parts.includes(c))
   ? ctx.fillStyle = clrs[parts.indexOf(c)]
   : false
 
-const fill = (s, x, y, xl, yl, ship, list) => {
+const fill = (s, x, y, xl, yl, ship) => {
   let nx = mx - (xl * 15) / 2
   let ny = my - (yl * 15) / 2
   if (!color(s)) {
@@ -196,11 +196,11 @@ const fill = (s, x, y, xl, yl, ship, list) => {
 
   //Connectors
   if (typeof(ship[x][y + 1]) === 'string') {
-    ctx.fillStyle = 'PaleTurquoise '
+    ctx.fillStyle = 'Turquoise '
     ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 5)
   }
   if (ship[x + 1] && typeof(ship[x + 1][y]) === 'string') {
-    ctx.fillStyle = 'PaleTurquoise '
+    ctx.fillStyle = 'Turquoise '
     ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 5, 10)
   }
 
@@ -225,35 +225,42 @@ const fill = (s, x, y, xl, yl, ship, list) => {
   }
 
   if (s === 'cannon') {
-    //top
-    if (!ship[x][y - 1] && ship[x][y + 1]) {
+
+    let h = []
+    let v = []
+    for (let a = 0; a < ship.length; a++) { h.push(ship[a][y]) }
+    for (let b = 0; b < ship[x].length; b++) { v.push(ship[x][b]) }
+    let t = v.slice(0, v.indexOf('cannon')).
+      filter(j => j !== false || j !== undefined)
+    let b = v.slice(v.lastIndexOf('cannon') + 1, v.length - 1).
+      filter(j => j !== false || j !== undefined)
+    let l = h.slice(0, h.indexOf('cannon')).
+      filter(j => j !== false || j !== undefined)
+    let r = h.slice(v.lastIndexOf('cannon') - 1, h.length + 1).
+      filter(j => j !== false || j !== undefined)
+
+    if (ship[x][y + 1] && ship[x + 1] && ship[x + 1][y] && ship[x - 1] && ship[x - 1][y] && ship[x][y - 1]) {
+      return
+    }
+
+    if (!t.length && !ship[x][y - 1] && ship[x][y + 1]) {
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15) - 25, 10, 15)
       return
     }
-
-    //bottom
-    if (!ship[x][y + 1] && ship[x][y - 1]) {
+    if ((!b.length && !ship[x][y + 1] && ship[x][y - 1])) {
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 15 + (x * 15), ny + 25 + (y * 15), 10, 15)
       return
     }
-
-    //Left Cannon
-    if ((!ship[x - 1] && ship[x + 1][y]) || ship[x + 1]) {
-      ctx.fillStyle = 'pink'
-      ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
-      return
-    }
-
-    //right cannon
-    if ((!ship[x + 1] && ship[x - 1][y]) || ship[x - 1]) {
+    if ((!r.length && !ship[x + 1][y]) || (x === xl - 1 && ship[x][y])) {
       ctx.fillStyle = 'pink'
       ctx.fillRect(nx + 25 + (x * 15), ny + 15 + (y * 15), 15, 10)
+      return
     }
-
+    ctx.fillStyle = 'pink'
+    ctx.fillRect(nx + (x * 15), ny + 15 + (y * 15), 15, 10)
   }
-
 }
 const loop = (ship) => {
   ship.forEach((a, x) => {
