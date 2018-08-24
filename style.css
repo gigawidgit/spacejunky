@@ -6,32 +6,30 @@ body {
 
 }
 div{
-    width:100vw;
-    height:10vh;
-
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background:rgba(255,255,255,0.2);
-    display:none;
+    display:flex;
+    flex-direction: column;
+    margin:0;padding:0;
 
 }
 canvas {
-    height:78vh;
+    /*height:78vh;*/
     display:flex;
-    width:100%;
-    background:#efefef;
-
+    /*width:100%;*/
+    /*background:#efefef;*/
+/**/
 }
 button {
     display:flex;
     text-align: center;
-    height:2vh;
+
 }
 input {
     display:flex;
-    height:4vh;
+    margin:0;padding:0;
 
-    padding: 1vh 1vw;
 }
-
+span {
+    flex-direction: row;
+    display:flex;
+    margin:0;padding:0;
+}
