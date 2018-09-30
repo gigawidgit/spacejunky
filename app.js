@@ -159,7 +159,7 @@ let ships = [
       'booster']],
 
 ]
-let index = 6
+let index = 5
 let parts = {
   'cockpit': {color: 0xFFFF00},
   'power': {color: 0x00FF0},
@@ -169,71 +169,106 @@ let parts = {
   'shield': {color: 0x0000FF},
   'storage': {color: 0xFF3311},
 }
-let clock = new THREE.Clock();
-let pivot = new THREE.Object3D();
-let spin = true
+let clock = new THREE.Clock()
+let pivot = new THREE.Object3D()
 let ship = ships[index]
-let rotate
+let material = new THREE.MeshPhongMaterial({color: 0xFFFFFF})
+let thrust = 0
+let turn = 0
+let keys = {
+  w:false,s:false,a:false,d:false,z:false
+}
 
-
-camera = new THREE.PerspectiveCamera(30, screensplit * SCREEN_WIDTH /
-  SCREEN_HEIGHT, 0.1, 10000)
-camera.position.z = 100
-scene = new THREE.Scene()
-
-let alight = new THREE.AmbientLight(0xCCCCCC) // soft white light
-alight.position.set(0, 0, 1)
-alight.intensity = 0.5
-
-scene.add(alight)
-
-let dlight = new THREE.DirectionalLight(0xFFFFFF)
-dlight.position.set(0, 20, 20)
-dlight.intensity = 0.6
-dlight.shadowMapWidth = 2048
-dlight.shadowMapHeight = 2048
-dlight.castShadow = true
-scene.add(dlight)
-
-renderer = new THREE.WebGLRenderer({antialias: true})
-renderer.setPixelRatio(window.devicePixelRatio)
-renderer.setSize(window.innerWidth, window.innerHeight - document.querySelector('.main').clientHeight)
-renderer.shadowMap.enabled = true
-document.body.appendChild(renderer.domElement)
-window.addEventListener('resize', onWindowResize, false)
-
-
-
-mixer = new THREE.AnimationMixer( scene );
-
-
-
-
-function init (shipit) {
-  ship = shipit || ships[index]
+function clearship () {
   for (let i = pivot.children.length - 1; i >= 0; i--) {
     pivot.remove(pivot.children[i])
   }
   for (let i = group.children.length - 1; i >= 0; i--) {
     group.remove(group.children[i])
   }
-  loop();
-  scene.add(group);
-  temp = new THREE.Box3().setFromObject( group );
-  group.position.set(-(Math.abs(temp.max.x+temp.min.x)/2),-(Math.abs(temp.max.y+temp.min.y)/2), 0)
+}
+
+const color = c => parts[c].color || false
+
+// Camera
+camera = new THREE.PerspectiveCamera(45, screensplit * SCREEN_WIDTH /
+  SCREEN_HEIGHT, 1, 10000)
+
+scene = new THREE.Scene()
+
+
+
+// Lights
+let alight = new THREE.AmbientLight(0xCCCCCC) // soft white light
+alight.position.set(0, 0, 1)
+alight.intensity = 0.3
+scene.add(alight)
+
+let dlight = new THREE.DirectionalLight(0xFFFFFF)
+dlight.position.set(0, 50, 200)
+dlight.intensity = 0.8
+dlight.shadowMapWidth = 2048
+dlight.shadowMapHeight = 2048
+dlight.castShadow = true
+scene.add(dlight)
+
+//Distant Stars
+let stars = new THREE.Group()
+for (var i = 0; i < 10000; i++) {
+  let pbox = new THREE.BoxGeometry(1, 1, 1)
+  let mbox = new THREE.Mesh(pbox, material)
+  mbox.position.x = Math.random() * 10000 - 1000
+  mbox.position.y = Math.random() * 10000 - 1000
+  mbox.position.z = Math.random() * 100 - 1000
+  stars.add(mbox)
+}
+scene.add(stars)
+
+//Shootable Stars
+let cubes = new THREE.Group()
+for (var i = 0; i < 10000; i++) {
+  let pbox = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+  let mbox = new THREE.Mesh(pbox, material)
+  mbox.position.x = Math.random() * 10000 - 1000
+  mbox.position.y = Math.random() * 10000 - 1000
+  mbox.position.z = 0
+  cubes.add(mbox)
+}
+scene.add(cubes)
+
+function init () {
+  loop()
+  temp = new THREE.Box3().setFromObject(group)
+  group.position.set(-(Math.abs(temp.max.x + temp.min.x) / 2),
+    -(Math.abs(temp.max.y + temp.min.y) / 2), 0)
   pivot.add(group)
   scene.add(pivot)
+
 }
 
-function onWindowResize () {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-}
+const loop = (ls, x) => {
+  x = x || 0
+  ls = ls || ship
+  ls.forEach((a, y) => {
+    if (typeof(a) === 'object') {
+      loop(a, y)
+    }
+    else {
+      if (typeof(a) === 'string') {
+        group.add(makeBox(x * 1.1, y * 1.1, color(a)))
+        if (ship[x + 1] && typeof(ship[x + 1][y]) === 'string') {
+          group.add(
+            makeBox((x * 1.1) + 0.3, y * 1.1, 'white', 0.3, 1.2, 1, true, true))
+        }
+        if (ship[x][y] && typeof(ship[x][y + 1]) === 'string') {
+          group.add(
+            makeBox(x * 1.1, (y * 1.1) + 0.3, 'white', 0.3, 1.2, 1, true))
+        }
+      }
 
-function animate () {
-  requestAnimationFrame(animate)
-  render()
+    }
+  })
+
 }
 
 function makeBox (x, y, c, w, h, d, m, r) {
@@ -246,86 +281,119 @@ function makeBox (x, y, c, w, h, d, m, r) {
   let mesh = new THREE.Mesh(smooth, cyl_m)
   mesh.castShadow = true
   mesh.receiveShadow = true
-  if (r) mesh.rotation.z = Math.PI / 2
+  if (r) {
+    mesh.rotation.z = Math.PI / 2
+  }
 
   mesh.position.set(x || 0, y || 0, 0)
   return mesh
 }
 
-const color = c => parts[c].color || false
+let delta
+let moveDistance
+let rotateAngle
 
-const loop = (ls, x) => {
-  x = x || 0
-  ls = ls || ship
-  ls.forEach((a, y) => {
-    if (typeof(a) === 'object') {
-      loop(a, y)
-    }
-    else {
-      if (typeof(a) === 'string') {
-        group.add(makeBox(x*1.1, y*1.1, color(a)))
-        if (ship[x + 1] && typeof(ship[x + 1][y]) === 'string') {
-          group.add(
-            makeBox((x*1.1) + 0.3, y*1.1, 'white', 0.3, 1.2, 1, true, true))
-        }
-        if (ship[x][y] && typeof(ship[x][y + 1]) === 'string') {
-          group.add(makeBox(x*1.1, (y*1.1) + 0.3, 'white', 0.3, 1.2, 1, true))
-        }
-      }
+function update () {
+  delta = clock.getDelta() // seconds.
+  moveDistance = 100 * delta // 200 pixels per second
+  rotateAngle = Math.PI / 2 * delta   // pi/2 radians (90 degrees) per second
+  console.log(delta, thrust)
+  if (keys['s'] && thrust < 10) thrust += delta
+  if (keys['w'] && thrust > -10) thrust -= delta
+  pivot.translateY(-moveDistance*thrust)
+  if (keys['a']) pivot.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateAngle)
+  if (keys['d']) pivot.rotateOnAxis(new THREE.Vector3(0, 0, 1), -rotateAngle)
+  if (keys['z']) {
+    pivot.position.set(0, 75, 0);
+    pivot.rotation.set(0, 0, 0);
+    thrust = 0
+  }
 
-    }
-  })
-
-
+  camera.lookAt(pivot.position)
 }
+
+//Renderer
+const render = () => renderer.render(scene, camera)
+
+renderer = new THREE.WebGLRenderer({antialias: true})
+renderer.setPixelRatio(window.devicePixelRatio)
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFShadowMap
+renderer.setSize(window.innerWidth, window.innerHeight -
+  document.querySelector('.main').clientHeight)
+camera.position.set(0, 0, 75)
+document.body.appendChild(renderer.domElement)
+
+pivot.add(camera)
+
+let controls = new THREE.OrbitControls(camera, renderer.domElement)
+controls.enableRotate = false
+controls.enablePan = false
+controls.enableKeys = true
+controls.update()
+
+//Animation
+function animate () {
+  requestAnimationFrame(animate)
+  controls.update()
+  render()
+  update()
+}
+
 init()
 animate()
 
+//Event Listeners
+document.querySelector('.build').addEventListener('click', () => {
+  ship = JSON.parse(JSON.stringify(document.querySelector('.inputs').
+    value.
+    split('|').
+    map(a => a.split(',').map(b => ((!b.length) ? false : b.trim())))))
+  init(ship)
+})
 
-function render() {
-  let delta = 0.75 * clock.getDelta();
-    if(rotate === 'left') {
-      pivot.rotation.z += 0.04
-    }
-    if(rotate === 'right'){
-      pivot.rotation.z -= 0.04
-    }
+window.addEventListener('resize', onWindowResize, false)
 
-  mixer.update( delta );
-  renderer.render( scene, camera );
+function onWindowResize () {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
+// let playerVector = new THREE.Vector3()
 
-
-window.addEventListener('keydown',(a)=>{
-  if(a.key==='ArrowLeft'){
-      rotate = 'left'
-  }
-  if(a.key==='ArrowRight'){
-    rotate = 'right'
-  }
-
-})
-window.addEventListener('keyup',(a)=> {
-rotate = false
-})
-
-
-// document.querySelector('.next').addEventListener('click', () => {
-//   index = (index < ships.length - 1) ? index + 1 : 0
-//   init()
+// window.addEventListener('keydown', (e) => {
+//   if (e.key === 'ArrowRight') {
+//     if (turn > -0.2) {
+//       turn += -0.015
+//     }
+//   }
+//   if (e.key === 'ArrowLeft') {
+//     if (turn < 0.2) {
+//       turn += 0.015
+//     }
+//
+//   }
+//   if (e.key === 'ArrowDown') {
+//     if (thrust > -0.95) {
+//       thrust += -0.1
+//     }
+//   }
+//   if (e.key === 'ArrowUp') {
+//     if (thrust < 0.95) {
+//       thrust += 0.1
+//     }
+//   }
+//
 // })
-// document.querySelector('.prev').addEventListener('click', () => {
-//   index = (index >= 1) ? index - 1 : ships.length - 1
-//   init()
+
+// window.addEventListener('keyup', (e) => {
+//   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+//     turn = 0;
+//   }
 // })
-// document.querySelector('.build').addEventListener('click', () => {
-//   ship = JSON.parse(JSON.stringify(document.querySelector('.inputs').
-//     value.
-//     split('|').
-//     map(a => a.split(',').map(b => ((!b.length) ? false : b.trim())))))
-//   init(ship)
-// })
-// document.querySelector('.animate').addEventListener('click', () => {
-//   spin = !spin
-// })
+
+
+window.addEventListener('keydown', (keyboard) => keys[keyboard.key] = true)
+window.addEventListener('keyup', (keyboard) => keys[keyboard.key] = false)
+
